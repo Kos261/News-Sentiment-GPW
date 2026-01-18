@@ -28,3 +28,12 @@ To sync dependencies with pip type:
 
 ## TEXTBLOB:
 ```$ uv run python -m textblob.download_corpora```
+
+## HOW TO LAUNCH WEBSITE?
+in project root type:
+
+```streamlit run src/main.py```
+
+or this if you use UV
+
+```uv run streamlit run src/main.py```
