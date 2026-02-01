@@ -1,8 +1,8 @@
 # News-Sentiment-GPW
 Repository for statistical arbitration methods course on MIMUW
 
+## Project requirements:
 
-# Project requirements:
 
 - tytuł
 - streszczenie (może być na kolejne zajęcia, czyli 20/01)
@@ -14,7 +14,8 @@ Chodzi o rysunek, na którym pokażecie
 jak zbudowane jest wasze rozwiązanie i jakie wykorzystuje technologie, serwisy 
 (te oczywiście mogą, ale nie muszą pochodzić od IBM). 
 - Dobre przykład znajdziecie np tu: https://cloud.ibm.com/docs/ContinuousDelivery?topic=ContinuousDelivery-tutorial-cd-vsi
-![img.png](img.png)
+
+
 
 ## UV
 To sync libraries use uv manager Download from: https://docs.astral.sh/uv/#__tabbed_1_2
@@ -24,6 +25,9 @@ In project directory type:
 ## PIP 
 To sync dependencies with pip type: 
 ```$ pip install -r requirements.txt```
+
+## TEXTBLOB:
+```$ uv run python -m textblob.download_corpora```
 
 ## HOW TO LAUNCH WEBSITE?
 in project root type:
