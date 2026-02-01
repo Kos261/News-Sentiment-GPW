@@ -1,9 +1,9 @@
 from model import model
-from web_scrap import web_scrap_multiple_pages, get_GPW, web_scrap
+from web_scrap import web_scrap_bankier_news, get_GPW, web_scrap_bankier
 from ui import ui
 
 def main():
-    df_news = web_scrap_multiple_pages(pages=10)
+    df_news = web_scrap_bankier_news(pages=10)
 
     results = model(df_news['Title'].tolist())
     df_news['Label'] = [result['label'] for result in results]
