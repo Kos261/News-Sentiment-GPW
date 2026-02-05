@@ -5,10 +5,13 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import random
 
-# --- KONFIGURACJA STRONY ---
+from requests.packages import target
+from style_css import style_css
+from web_scrap import get_GPW
+from model import bardai
+
 st.set_page_config(page_title="GPW.NEXUS", layout="wide", initial_sidebar_state="collapsed")
 
-# --- LISTA SPÓŁEK ---
 WIG20_TICKERS = [
     "PKOBP", "PKNORLEN", "KGHM", "PEKAO", "PZU", 
     "LPP", "SANPL", "ALLEGRO", "DINOPL", "CDPROJEKT", 
@@ -16,87 +19,16 @@ WIG20_TICKERS = [
     "PGE", "KRUK", "ORANGEPL", "CCC", "PEPCO"
 ]
 
-# --- STYLIZACJA CSS ---
-st.markdown("""
-    <style>
-    /* Ogólne ustawienia aplikacji */
-    .stApp {
-        background-color: #0e1117;
-        color: white;
-    }
-    
-    /* LEWA STRONA: Box zwrotów i ceny */
-    .returns-box {
-        background: linear-gradient(180deg, #1c202a 0%, #1e3a8a 100%);
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #3b82f6;
-        font-family: 'Source Sans Pro', sans-serif;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    /* PRAWA STRONA: Styl dla 3 identycznych ramek KPI */
-    .kpi-card {
-        background-color: #1c202a;
-        border: 1px solid #2d3446;
-        border-radius: 12px;
-        padding: 10px;
-        text-align: center;
-        height: 160px; 
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    
-    .kpi-label {
-        font-size: 11px;
-        color: #8b949e;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-        letter-spacing: 1px;
-        font-weight: 600;
-    }
-    
-    .kpi-value-big {
-        font-size: 24px;
-        font-weight: bold;
-        color: white;
-    }
-    
-    .kpi-sub {
-        font-size: 13px;
-        color: #6b7280;
-        margin-top: 5px;
-    }
-
-    /* Usunięcie marginesu górnego */
-    .block-container {
-        padding-top: 2rem;
-    }
-    
-    /* Stylizacja nagłówka expandera */
-    .streamlit-expanderHeader {
-        background-color: #1c202a;
-        color: #8b949e;
-        border-radius: 8px;
-    }
-    </style>
-""", unsafe_allow_html=True)
+st.markdown(style_css, unsafe_allow_html=True)
 
 # --- FUNKCJE POMOCNICZE ---
 
 def get_simulated_prices(ticker):
-    random.seed(ticker)
-    base_price = random.uniform(10000, 18000) if ticker == "LPP" else random.uniform(20, 400)
-    current_price = base_price * random.uniform(0.95, 1.05)
-    target_price = current_price * random.uniform(1.05, 1.30) 
+    df_gpw = get_GPW()
+    current_price = df_gpw[ticker]
+    target_price = df_gpw[ticker]
     upside_pct = ((target_price - current_price) / current_price) * 100
+
     return round(current_price, 2), round(target_price, 2), round(upside_pct, 2)
 
 def create_price_chart(current_price):
@@ -125,16 +57,11 @@ def create_price_chart(current_price):
     return fig
 
 def create_pro_sentiment_gauge(value):
-    """
-    Tworzy nowoczesny, minimalistyczny wykres sentymentu (bez zbędnych opisów na łuku).
-    """
-    # Kolory dopasowane do Dark Mode
-    color_bearish = "#ef4444"  # Czerwony
-    color_neutral = "#374151"  # Ciemnoszary
-    color_bullish = "#22c55e"  # Zielony
-    color_needle = "#ffffff"   # Biała wskazówka
-    
-    # Etykieta tekstowa na podstawie wartości
+    color_bearish = "#ef4444"
+    color_neutral = "#374151"
+    color_bullish = "#22c55e"
+    color_needle = "#ffffff"
+
     if value < 33:
         label_text = "NEGATYWNY"
         label_color = color_bearish
@@ -182,15 +109,6 @@ def create_pro_sentiment_gauge(value):
         dict(x=0.5, y=0.10, text=label_text, showarrow=False, font=dict(color=label_color, size=14, weight="bold"))
     ]
     
-    # Dodanie "Pivot Point" (kropki w środku wskazówki)
-    # fig.add_shape(
-    #     type="circle",
-    #     xref="paper", yref="paper",
-    #     x0=0.47, y0=0.22, x1=0.53, y1=0.28, # Wyśrodkowana kropka
-    #     fillcolor="#1c202a", 
-    #     line=dict(color=color_needle, width=2)
-    # )
-    
     fig.update_layout(
         annotations=annotations,
         height=260, 
@@ -211,8 +129,19 @@ with col_select:
 
 # Pobranie danych
 cur_price, tar_price, upside = get_simulated_prices(selected_ticker)
-random.seed(selected_ticker)
-sentiment_val = random.randint(25, 95) 
+df_news = pd.DataFrame([
+        {"Title":"Spółka zanotowała świetne wyniki i duży spadek jakości."},
+        {"Title":"Niestety, inflacja zjada zyski, a kurs akcji rośnie."},
+        {"Title":"Zarząd ogłosił beznadziejne wyniki za kwartał."}
+    ])
+
+results = bardai(df_news['Title'].tolist())
+df_news['Label'] = [result['label'] for result in results]
+df_news['Score'] = [result['score'] for result in results]
+sentiment_val = df_news['Score']
+
+# sentiment_val = random.randint(25, 95)
+
 
 # 2. Główny podział
 left_col, right_col = st.columns([1, 1.8])
@@ -294,14 +223,15 @@ with right_col:
     
     # --- NEWSY ---
     st.markdown(f"#### Wydarzenia Rynkowe: {selected_ticker}")
-    
-    titles_pool = [
-        "Znakomite wyniki kwartalne spółki", "Obawy o inflację wpływają na sektor",
-        "Nowa strategia dywidendowa zatwierdzona", "Prezes ogłasza rezygnację z końcem roku",
-        "Rekomendacja 'Przeważaj' od dużego banku", "Fuzja z zagranicznym podmiotem wstrzymana",
-        "Rekordowa produkcja w zakładach", "Zmiany w prawie energetycznym a zyski",
-        "Analiza techniczna: przełamanie oporu", "Inwestycje w nowe technologie"
-    ]
+
+    titles_pool = df_news["Title"].tolist()
+    # titles_pool = [
+    #     "Znakomite wyniki kwartalne spółki", "Obawy o inflację wpływają na sektor",
+    #     "Nowa strategia dywidendowa zatwierdzona", "Prezes ogłasza rezygnację z końcem roku",
+    #     "Rekomendacja 'Przeważaj' od dużego banku", "Fuzja z zagranicznym podmiotem wstrzymana",
+    #     "Rekordowa produkcja w zakładach", "Zmiany w prawie energetycznym a zyski",
+    #     "Analiza techniczna: przełamanie oporu", "Inwestycje w nowe technologie"
+    # ]
     
     all_news = []
     for i in range(10):

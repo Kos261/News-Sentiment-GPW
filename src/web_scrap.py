@@ -57,7 +57,7 @@ def web_scrap_bankier_news(base_url="https://www.bankier.pl/wiadomosc/", pages=3
 
     return pd.DataFrame(news_data)
 
-def get_GPW(url):
+def get_GPW(url = "https://www.bankier.pl/gielda/notowania/akcje"):
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     df_news = web_scrap_bankier_news(pages=10)
     print(df_news)
 
-    df_GPW = get_GPW(url = "https://www.bankier.pl/gielda/notowania/akcje")
+    df_GPW = get_GPW()
     print(df_GPW.head())
 
     df_mood = web_scrap_mood_index()

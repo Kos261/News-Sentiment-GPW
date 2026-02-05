@@ -4,7 +4,7 @@ import torch
 print(torch.cuda.is_available())
 print(torch.cuda.get_device_name(0))
 
-model = pipeline(
+bardai = pipeline(
     "text-classification",
     model="bardsai/twitter-sentiment-pl-base",
     device=1   # <<< GPU (0 = pierwsza karta)
@@ -17,7 +17,7 @@ if __name__ == "__main__":
         {"Title":"Zarząd ogłosił beznadziejne wyniki za kwartał."}
     ])
 
-    results = model(df_news['Title'].tolist())
+    results =bardai(df_news['Title'].tolist())
     df_news['Label'] = [result['label'] for result in results]
     df_news['Score'] = [result['score'] for result in results]
 
