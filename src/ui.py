@@ -19,6 +19,19 @@ warnings.filterwarnings("ignore")
 # --- KONFIGURACJA STRONY ---
 st.set_page_config(page_title="GPW SENTIX AI", layout="wide", initial_sidebar_state="collapsed")
 
+hide_ui_css = """
+<style>
+    header {visibility: hidden;}
+    [data-testid="stHeader"] {display: none;}
+    footer {display: none !important;}
+    [data-testid="stToolbar"] {display: none !important;}
+    .block-container {
+        padding-top: 1rem;
+    }
+</style>
+"""
+
+st.markdown(hide_ui_css, unsafe_allow_html=True)
 # --- MAPOWANIE SPÓŁEK ---
 # --- MAPOWANIE SPÓŁEK (PEŁNY WIG20) ---
 COMPANIES = {
