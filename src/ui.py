@@ -623,12 +623,12 @@ with right_col:
     with kpi1:
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-label">Rekomendacja (AI)</div>
+                <div class="kpi-label">Rekomendacja</div>
                 <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <span style="font-size: 32px; color: {rec_col}; line-height: 1;">{rec_arrow}</span>
                     <span class="kpi-value-big" style="color: {rec_col};">{rec_text}</span>
                 </div>
-                <div class="kpi-sub">Analiza newsów</div>
+                <div class="kpi-sub">Analiza AI</div>
             </div>""", unsafe_allow_html=True)
 
     # --- Reszta kodu bez zmian (kpi2, kpi3...) ---
